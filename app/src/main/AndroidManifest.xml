@@ -43,7 +43,8 @@
         <activity
             android:name=".ui.availability.AvailabilityResultsActivity"
             android:label="@string/title_activity_availability_results"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:launchMode="singleTop"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
-import android.support.v7.widget.Toolbar;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,11 +16,9 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
-import com.firebase.client.ValueEventListener;
 
 import ex5.it.mcm.fhooe.classroomplusplus.R;
 import ex5.it.mcm.fhooe.classroomplusplus.model.Survey;
-import ex5.it.mcm.fhooe.classroomplusplus.model.Vote;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.OnFragmentInteractionListener;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.Constants;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.DataService;
@@ -171,24 +167,29 @@ public class VoteFragment extends Fragment {
         @Override
         public void onClick(View v) {
             if(mSurveyId != null) {
-                // send SurveyId to Activity
-                Intent intent = new Intent(getActivity().getApplicationContext(), VoteResultsActivity.class);
-                intent.putExtra(Constants.KEY_SURVEY_ID, mSurveyId);
                 switch (v.getId()) {
                     case R.id.imageViewLeft: {
-                        DataService.sendAnswer(Constants.Answer.LEFT, NFC_ID, mSurveyId);
-                        startActivity(intent);
+                        handleAction(NFC_ID, Constants.Answer.LEFT, mSurveyId);
                         break;
                     }
                     case R.id.imageViewRight: {
-                        DataService.sendAnswer(Constants.Answer.RIGHT, NFC_ID, mSurveyId);
-                        startActivity(intent);
+                        handleAction(NFC_ID, Constants.Answer.RIGHT, mSurveyId);
                         break;
                     }
                 }
             }
         }
     };
+
+    public void handleAction(String voteId, Constants.Answer answer, String surveyId) {
+        DataService.sendAnswer(answer, voteId, surveyId);
+
+        // send SurveyId to Activity
+        Intent intent = new Intent(getActivity().getApplicationContext(), VoteResultsActivity.class);
+        intent.putExtra(Constants.KEY_SURVEY_ID, surveyId);
+        startActivity(intent);
+    }
+
 
     @Override
     public void onPause() {

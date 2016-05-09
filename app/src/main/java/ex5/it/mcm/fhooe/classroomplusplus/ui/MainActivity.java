@@ -54,6 +54,8 @@ public class MainActivity extends AppCompatActivity
     private View v;
     private Tag mTag;
 
+    private Fragment mFragment;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,13 +123,12 @@ public class MainActivity extends AppCompatActivity
     public boolean onNavigationItemSelected(MenuItem item) {
 
         // Create a new fragment and specify the fragment to show based on nav item clicked
-        Fragment fragment = null;
+        mFragment = null;
         Class fragmentClass = null;
 
         // Handle navigation view item clicks here.
         switch(item.getItemId()) {
             case R.id.nav_vote:
-                //startActivity(new Intent(getApplicationContext(), VoteActivity.class));
                 fragmentClass = VoteFragment.class;
                 break;
             case R.id.nav_availability:
@@ -137,14 +138,14 @@ public class MainActivity extends AppCompatActivity
         }
 
         try {
-            fragment = (Fragment) fragmentClass.newInstance();
+            mFragment = (Fragment) fragmentClass.newInstance();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
         // Insert the fragment by replacing any existing fragment
         FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, fragment).commit();
+        fragmentManager.beginTransaction().replace(R.id.fragment_container, mFragment).commit();
 
         // Set action bar title
         setTitle(item.getTitle());
@@ -202,6 +203,7 @@ public class MainActivity extends AppCompatActivity
         // read Intent if NDEF discovered
         if(getIntent().getAction() == NfcAdapter.ACTION_NDEF_DISCOVERED) {
             readIntent(getIntent());
+            getIntent().setAction("");
         }
 
     }
@@ -321,6 +323,7 @@ public class MainActivity extends AppCompatActivity
         }
     }
 
+    // get last surveyID
     private void handleVoting(final String voteId, final Constants.Answer answer) {
         Query surveyRef = new Firebase(Constants.FIREBASE_URL_SURVEYS).limitToLast(1);
 
@@ -355,11 +358,12 @@ public class MainActivity extends AppCompatActivity
 
     private void transmitVoting(String voteId, Constants.Answer answer, String surveyId) {
         Log.d("MAIN", "tagID: "+voteId);
+
         // send SurveyId to Activity
         Intent intent = new Intent(this.getApplicationContext(), VoteResultsActivity.class);
         intent.putExtra(Constants.KEY_SURVEY_ID, surveyId);
-        intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
         DataService.sendAnswer(answer, voteId, surveyId);
         startActivity(intent);
     }
 }
+
