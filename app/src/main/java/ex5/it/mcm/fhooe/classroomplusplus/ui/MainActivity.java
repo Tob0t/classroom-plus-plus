@@ -32,15 +32,20 @@ import com.firebase.client.DataSnapshot;
 import com.firebase.client.Firebase;
 import com.firebase.client.FirebaseError;
 import com.firebase.client.Query;
+import com.firebase.client.ServerValue;
+import com.firebase.client.ValueEventListener;
 
 import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.UnsupportedEncodingException;
 import java.math.BigInteger;
+import java.util.ArrayList;
 
 import ex5.it.mcm.fhooe.classroomplusplus.R;
+import ex5.it.mcm.fhooe.classroomplusplus.model.Lecture;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.availability.AvailabilityFragment;
+import ex5.it.mcm.fhooe.classroomplusplus.ui.availability.AvailabilityResultsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteFragment;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteResultsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.Constants;
@@ -133,6 +138,7 @@ public class MainActivity extends AppCompatActivity
                 break;
             case R.id.nav_availability:
                 fragmentClass = AvailabilityFragment.class;
+                break;
             default:
                 fragmentClass = MainFragment.class;
         }
@@ -302,26 +308,32 @@ public class MainActivity extends AppCompatActivity
                 try {
                     JSONObject jsonRootObject = new JSONObject(result);
                     JSONObject survey = jsonRootObject.optJSONObject("survey");
-                    String roomId = survey.optString("roomId");
-                    voteId = survey.optString("voteId");
-                    answer = survey.optString("answer");
+                    JSONObject room = jsonRootObject.optJSONObject("room");
+                    if(survey != null) {
+                        String roomId = survey.optString("roomId");
+                        voteId = survey.optString("voteId");
+                        answer = survey.optString("answer");
+                        if(answer.equalsIgnoreCase(Constants.Answer.LEFT.toString())){
+                            Log.d("MAIN", "Forward to LEFT");
+                            Snackbar.make(v, "Left tag has been selected ..", Snackbar.LENGTH_LONG).show();
+                            handleVoting(voteId, Constants.Answer.LEFT);
+                        } else if(answer.equalsIgnoreCase(Constants.Answer.RIGHT.toString())) {
+                            Log.d("MAIN", "Forward to RIGHT");
+                            Snackbar.make(v, "Right tag has been selected ..", Snackbar.LENGTH_LONG).show();
+                            handleVoting(voteId, Constants.Answer.RIGHT);
+                        }
+                    } else if(room != null){
+                        String roomId = room.optString("roomId");
+                        transmitAvailability(roomId);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
-                }
-                //.setText("Read content: " + answer);
-                Log.d("MAIN", "Read content: "+answer);
-                if(answer.equalsIgnoreCase(Constants.Answer.LEFT.toString())){
-                    Log.d("MAIN", "Forward to LEFT");
-                    Snackbar.make(v, "Left tag has been selected ..", Snackbar.LENGTH_LONG).show();
-                    handleVoting(voteId, Constants.Answer.LEFT);
-                } else if(answer.equalsIgnoreCase(Constants.Answer.RIGHT.toString())) {
-                    Log.d("MAIN", "Forward to RIGHT");
-                    Snackbar.make(v, "Right tag has been selected ..", Snackbar.LENGTH_LONG).show();
-                    handleVoting(voteId, Constants.Answer.RIGHT);
                 }
             }
         }
     }
+
+
 
     // get last surveyID
     private void handleVoting(final String voteId, final Constants.Answer answer) {
@@ -363,6 +375,13 @@ public class MainActivity extends AppCompatActivity
         Intent intent = new Intent(this.getApplicationContext(), VoteResultsActivity.class);
         intent.putExtra(Constants.KEY_SURVEY_ID, surveyId);
         DataService.sendAnswer(answer, voteId, surveyId);
+        startActivity(intent);
+    }
+
+    private void transmitAvailability(String roomId) {
+        // send roomId to Activity
+        Intent intent = new Intent(this.getApplicationContext(), AvailabilityResultsActivity.class);
+        intent.putExtra(Constants.KEY_ROOM_ID, roomId);
         startActivity(intent);
     }
 }

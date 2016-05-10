@@ -50,12 +50,17 @@ public final class Constants {
      * Constants for bundles, extras and shared preferences keys
      */
     public static final String KEY_SURVEY_ID = "SURVEY_ID";
+    public static final String KEY_ROOM_ID = "ROOM_ID";
 
     /**
      * Enums
      */
     public enum Answer{
         LEFT, RIGHT
+    }
+
+    public enum RoomStatus{
+        FREE, OCCUPIED
     }
 
 }
