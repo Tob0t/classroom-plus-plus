@@ -3,16 +3,12 @@
 
     <group android:checkableBehavior="single">
         <item
+            android:id="@+id/nav_availability"
+            android:icon="@drawable/ic_event_available_black_24dp"
+            android:title="Check Room" />
+        <item
             android:id="@+id/nav_vote"
             android:icon="@drawable/ic_assessment_black_24dp"
             android:title="Vote now" />
-        <item
-            android:id="@+id/nav_availability"
-            android:icon="@drawable/ic_event_available_black_24dp"
-            android:title="Check Availability" />
-        <item
-            android:id="@+id/nav_manage"
-            android:icon="@drawable/ic_menu_manage"
-            android:title="Settings" />
     </group>
 </menu>

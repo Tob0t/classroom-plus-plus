@@ -26,7 +26,7 @@
             android:layout_width="116dp"
             android:layout_height="114dp"
             android:layout_weight="1"
-            android:id="@+id/imageView3"
+            android:id="@+id/imageViewNfcScanner"
             android:src="@drawable/nfc_scanner"
             android:layout_alignParentTop="true"
             android:layout_alignParentLeft="true"

@@ -53,6 +53,19 @@ public final class Constants {
     public static final String KEY_ROOM_ID = "ROOM_ID";
 
     /**
+     * For Shared preferences
+     */
+    public static final String PREF_USERNAME = "username";
+    public static final String PREF_EMAIL = "email";
+
+    /**
+     * Mock Data for Demo
+     */
+    public static final String MOCK_ROOM_ID = "L1";
+    public static final String NFC_ID = "123456789";
+
+
+    /**
      * Enums
      */
     public enum Answer{

@@ -17,5 +17,8 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="title_activity_vote_results">Vote Results</string>
-    <string name="title_activity_availability_results">AvailabilityResultsActivity</string>
+    <string name="title_activity_availability_results">Results</string>
+    <string name="title_activity_reserve_room">Occupy Room</string>
+    <string name="title_activity_settings">SettingsActivity</string>
+    <string name="msg_nfcon">Your NFC is not enabled, please turn it on to use the application properly.</string>
 </resources>

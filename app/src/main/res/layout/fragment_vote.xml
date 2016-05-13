@@ -24,27 +24,17 @@
         android:textSize="25dp"
         android:textAlignment="center"
         android:textColor="@color/button_material_light"
-        android:layout_alignParentBottom="true"
-        android:layout_alignLeft="@+id/linearLayout"
-        android:layout_alignStart="@+id/linearLayout" />
-
-    <ImageView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:id="@+id/imageView2"
-        android:layout_below="@+id/txtQuestion"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true" />
+        android:layout_alignParentBottom="true" />
 
     <LinearLayout
         android:orientation="horizontal"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="40dp"
-        android:layout_below="@+id/imageView2"
         android:layout_alignParentLeft="true"
         android:layout_alignParentStart="true"
-        android:id="@+id/linearLayout2">
+        android:id="@+id/linearLayout2"
+        android:layout_below="@+id/txtQuestion">
 
         <TextView
             android:layout_width="wrap_content"
@@ -67,30 +57,13 @@
             android:textColor="@color/accent_material_light" />
     </LinearLayout>
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
+    <ImageView
+        android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:id="@+id/linearLayout"
-        android:layout_below="@+id/linearLayout2"
-        android:layout_alignParentLeft="true"
-        android:layout_alignParentStart="true"
-        android:layout_marginTop="40dp">
-
-        <ImageView
-            android:layout_width="116dp"
-            android:layout_height="114dp"
-            android:layout_weight="1"
-            android:id="@+id/imageViewLeft"
-            android:src="@drawable/nfc_sticker" />
-
-        <ImageView
-            android:layout_width="116dp"
-            android:layout_height="114dp"
-            android:layout_weight="1"
-            android:id="@+id/imageViewRight"
-            android:src="@drawable/nfc_sticker" />
-
-    </LinearLayout>
+        android:id="@+id/bgImage"
+        android:src="@drawable/nfc_voting"
+        android:layout_above="@+id/txtHint"
+        android:layout_centerHorizontal="true"
+        android:layout_marginBottom="15dp" />
 
 </RelativeLayout>

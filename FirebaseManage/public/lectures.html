@@ -75,7 +75,8 @@
         function populateListBox(arr){
           var option = '';
           for (var i=0;i<arr.length;i++){
-             option += '<option value="'+ arr[i].id + '">' + arr[i].data.roomNumber + '</option>';
+             //option += '<option value="'+ arr[i].id + '">' + arr[i].data.roomNumber + '</option>';
+             option += '<option value="'+ arr[i].id + '">' + arr[i].id + '</option>';
           }
           $('#items').append(option);
         }
@@ -88,7 +89,8 @@
           var endTs = Date.parse($('#endTime').val()).getTime();
           console.log(endTs);
           lecturesRef.child(roomId).push().set({
-            name: $('#name').val(),
+            lectureName: $('#lectureName').val(),
+            personName: $('#personName').val(),
             startTime: startTs,
             endTime:endTs
           }, function(error) {
@@ -122,7 +124,7 @@
             $.each(lectures, function(index, lecture) {
                 var startDate = new Date(lecture.startTime).toString('dd.MM.yyyy HH:mm');
                 var endDate = new Date(lecture.endTime).toString('dd.MM.yyyy HH:mm');
-                tr += '<tr><td>'+arr[i].id+'</td><td>'+lecture.name+'</td><td>'+startDate+'</td><td>'+endDate+'</td><td></tr>';
+                tr += '<tr><td>'+arr[i].id+'</td><td>'+lecture.lectureName+'</td><td>'+lecture.personName+'</td><td>'+startDate+'</td><td>'+endDate+'</td><td></tr>';
             }); 
           }
           $('#tbody').html(tr);
@@ -172,8 +174,12 @@
         </select>
         </div>
         <div class="form-group">
-          <label for="name">Name</label>
-          <input type="text" class="form-control" id="name" placeholder="Name">
+          <label for="lectureName">Lecture Name</label>
+          <input type="text" class="form-control" id="lectureName" placeholder="Lecture Name">
+        </div>
+        <div class="form-group">
+          <label for="personName">Person Name</label>
+          <input type="text" class="form-control" id="personName" placeholder="Person Name">
         </div>
         <div class="form-group">
           <label for="startTime">Start time</label>
@@ -194,6 +200,7 @@
               <tr>
                 <th>Room Name</th>
                 <th>Lecture</th>
+                <th>Person</th>
                 <th>Start time</th>
                 <th>End time</th>
               </tr>

@@ -21,11 +21,12 @@ import java.text.SimpleDateFormat;
 
 import ex5.it.mcm.fhooe.classroomplusplus.R;
 import ex5.it.mcm.fhooe.classroomplusplus.model.Lecture;
+import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteResultsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.Constants;
 import me.grantland.widget.AutofitHelper;
 
 public class AvailabilityResultsActivity extends AppCompatActivity {
-    private TextView mRoomNumberTxt, mStateTxt, mCurrentLectureTxt, mTimeOccupiedTxt, mTimeNextLectureTxt;
+    private TextView mRoomNumberTxt, mStateTxt, mCurrentLectureTxt, mPersonNameTxt, mTimeOccupiedTxt, mTimeNextLectureTxt;
     private TextView mOccupiedTxt;
     private Button mOccupyButton;
     private ImageView mStateImage;
@@ -77,14 +78,15 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
             if(lecture.getStartTime() < currentTs && lecture.getEndTime() > currentTs){
                 roomStatus = Constants.RoomStatus.OCCUPIED;
                 mStateTxt.setText("Occupied");
-                mCurrentLectureTxt.setText(lecture.getName());
-                String lectureEndTime = new SimpleDateFormat("MM.dd HH:mm").format(lecture.getEndTime());
+                mCurrentLectureTxt.setText(lecture.getLectureName());
+                mPersonNameTxt.setText(lecture.getPersonName());
+                String lectureEndTime = new SimpleDateFormat("dd.MM HH:mm").format(lecture.getEndTime());
                 mTimeOccupiedTxt.setText(lectureEndTime);
                 mStateImage.setImageResource(R.drawable.occupied);
                 mStateImage.setVisibility(View.VISIBLE);
             }
             if(lecture.getStartTime() > currentTs){
-                String nextLectureStartTime = new SimpleDateFormat("MM.dd HH:mm").format(lecture.getStartTime());
+                String nextLectureStartTime = new SimpleDateFormat("dd.MM HH:mm").format(lecture.getStartTime());
                 mTimeNextLectureTxt.setText(nextLectureStartTime);
                 // jump out of the loop since we only need the first occurence
                 break;
@@ -103,6 +105,7 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
         mRoomNumberTxt =  (TextView) findViewById(R.id.txtRoomNumber);
         mStateTxt =  (TextView) findViewById(R.id.txtState);
         mCurrentLectureTxt =  (TextView) findViewById(R.id.txtLectureName);
+        mPersonNameTxt =  (TextView) findViewById(R.id.txtPersonName);
         mTimeOccupiedTxt =  (TextView) findViewById(R.id.txtTimeOccupied);
         mTimeNextLectureTxt =  (TextView) findViewById(R.id.txtTimeNextLecture);
 
@@ -110,6 +113,8 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
         mOccupyButton = (Button) findViewById(R.id.buttonOccupy);
 
         mStateImage = (ImageView) findViewById(R.id.imageViewState);
+
+        mOccupyButton.setOnClickListener(onClickListener);
 
         mRoomNumberTxt.setText(mRoomId);
         setTitle(mRoomId);
@@ -119,6 +124,23 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
 
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
     }
+
+    private View.OnClickListener onClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View v){
+            if(mRoomId != null) {
+                switch (v.getId()) {
+                    case R.id.buttonOccupy: {
+                        // start new Activity
+                        Intent intent = new Intent(v.getContext(), ReserveRoomActivity.class);
+                        intent.putExtra(Constants.KEY_ROOM_ID, mRoomId);
+                        startActivity(intent);
+                        break;
+                    }
+                }
+            }
+        }
+    };
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {

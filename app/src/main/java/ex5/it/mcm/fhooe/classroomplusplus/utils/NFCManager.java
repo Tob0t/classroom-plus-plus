@@ -30,6 +30,7 @@ public class NFCManager {
         public NFCNotSupported(String message)
         {
             super(message);
+
         }
     }
 

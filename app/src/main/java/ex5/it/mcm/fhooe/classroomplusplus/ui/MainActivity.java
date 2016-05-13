@@ -1,8 +1,10 @@
 package ex5.it.mcm.fhooe.classroomplusplus.ui;
 
 import android.app.PendingIntent;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.nfc.NdefMessage;
 import android.nfc.NdefRecord;
@@ -11,12 +13,17 @@ import android.nfc.Tag;
 import android.nfc.tech.Ndef;
 import android.nfc.tech.NfcA;
 import android.os.AsyncTask;
+import android.os.Build;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.provider.Settings;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
+import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.View;
 import android.support.design.widget.NavigationView;
 import android.support.v4.view.GravityCompat;
@@ -26,6 +33,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.widget.TextView;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -46,6 +54,7 @@ import ex5.it.mcm.fhooe.classroomplusplus.R;
 import ex5.it.mcm.fhooe.classroomplusplus.model.Lecture;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.availability.AvailabilityFragment;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.availability.AvailabilityResultsActivity;
+import ex5.it.mcm.fhooe.classroomplusplus.ui.settings.SettingsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteFragment;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteResultsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.Constants;
@@ -69,18 +78,49 @@ public class MainActivity extends AppCompatActivity
         v = findViewById(R.id.fragment_container);
         nfcMger = new NFCManager(this);
 
+        // Verify that NFC is running if not show alert dialog
+        try {
+            nfcMger.verifyNFC();
+        } catch (NFCManager.NFCNotSupported nfcNotSupported) {
+            Snackbar.make(v, "NFC is not supported on your phone, however you can still use the app by touching.", Snackbar.LENGTH_LONG).show();
+        } catch (NFCManager.NFCNotEnabled nfcNotEnabled) {
+            AlertDialog.Builder alertbox = new AlertDialog.Builder(v.getContext());
+            alertbox.setTitle("Info");
+            alertbox.setMessage(getString(R.string.msg_nfcon));
+            alertbox.setPositiveButton("Turn On", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        Intent intent = new Intent(Settings.ACTION_NFC_SETTINGS);
+                        startActivity(intent);
+                    } else {
+                        Intent intent = new Intent(Settings.ACTION_WIRELESS_SETTINGS);
+                        startActivity(intent);
+                    }
+                }
+            });
+            alertbox.setNegativeButton("Close", new DialogInterface.OnClickListener() {
+
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+
+                }
+            });
+            alertbox.show();
+        }
+
+        initializeScreen();
+
+
+    }
+
+    private void initializeScreen() {
+
+
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                Snackbar.make(view, "Replace with your own action", Snackbar.LENGTH_LONG)
-                        .setAction("Action", null).show();
-            }
-        });
-
+        // Setup Drawer
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         ActionBarDrawerToggle toggle = new ActionBarDrawerToggle(
                 this, drawer, toolbar, R.string.navigation_drawer_open, R.string.navigation_drawer_close);
@@ -89,6 +129,24 @@ public class MainActivity extends AppCompatActivity
 
         NavigationView navigationView = (NavigationView) findViewById(R.id.nav_view);
         navigationView.setNavigationItemSelectedListener(this);
+
+        // Set the right username & email to the Navigation Drawer
+        View header = navigationView.getHeaderView(0);
+        TextView username = (TextView) header.findViewById(R.id.textViewName);
+        TextView email = (TextView) header.findViewById(R.id.textViewEmail);
+
+        // Get Username & Email from shared preferences
+        SharedPreferences SP = PreferenceManager.getDefaultSharedPreferences(getBaseContext());
+        String strUserName = SP.getString("username", "Anonymous");
+        String strEmail = SP.getString("email", "max.mustermann@example.com");
+        username.setText(strUserName);
+        email.setText(strEmail);
+
+        // Select first item in navbar
+        navigationView.setCheckedItem(R.id.nav_availability);
+        navigationView.getMenu().performIdentifierAction(R.id.nav_availability,0);
+
+
     }
 
     @Override
@@ -117,6 +175,7 @@ public class MainActivity extends AppCompatActivity
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
+            startActivity(new Intent(getApplicationContext(), SettingsActivity.class));
             return true;
         }
 
@@ -133,14 +192,14 @@ public class MainActivity extends AppCompatActivity
 
         // Handle navigation view item clicks here.
         switch(item.getItemId()) {
-            case R.id.nav_vote:
-                fragmentClass = VoteFragment.class;
-                break;
             case R.id.nav_availability:
                 fragmentClass = AvailabilityFragment.class;
                 break;
+            case R.id.nav_vote:
+                fragmentClass = VoteFragment.class;
+                break;
             default:
-                fragmentClass = MainFragment.class;
+                fragmentClass = AvailabilityFragment.class;
         }
 
         try {
@@ -149,12 +208,14 @@ public class MainActivity extends AppCompatActivity
             e.printStackTrace();
         }
 
-        // Insert the fragment by replacing any existing fragment
-        FragmentManager fragmentManager = getSupportFragmentManager();
-        fragmentManager.beginTransaction().replace(R.id.fragment_container, mFragment).commit();
+        if(mFragment != null) {
+            // Insert the fragment by replacing any existing fragment
+            FragmentManager fragmentManager = getSupportFragmentManager();
+            fragmentManager.beginTransaction().replace(R.id.fragment_container, mFragment).commit();
 
-        // Set action bar title
-        setTitle(item.getTitle());
+            // Set action bar title
+            setTitle(item.getTitle());
+        }
 
         DrawerLayout drawer = (DrawerLayout) findViewById(R.id.drawer_layout);
         drawer.closeDrawer(GravityCompat.START);
@@ -169,7 +230,9 @@ public class MainActivity extends AppCompatActivity
     @Override
     protected void onPause() {super.onPause();
         NfcAdapter nfcAdpt = NfcAdapter.getDefaultAdapter(this);
-        nfcAdpt.disableForegroundDispatch(this);
+        if(nfcAdpt != null) {
+            nfcAdpt.disableForegroundDispatch(this);
+        }
 
     }
 
@@ -199,11 +262,11 @@ public class MainActivity extends AppCompatActivity
         }
 
         catch(NFCManager.NFCNotSupported nfcnsup) {
-            Snackbar.make(v, "NFC not supported", Snackbar.LENGTH_LONG).show();
+            //Snackbar.make(v, "NFC is not supported on your phone, however you can still use the app by touching.", Snackbar.LENGTH_LONG).show();
         }
 
         catch(NFCManager.NFCNotEnabled nfcnEn) {
-            Snackbar.make(v, "NFC Not enabled", Snackbar.LENGTH_LONG).show();
+            Snackbar.make(v, "NFC not enabled", Snackbar.LENGTH_LONG).show();
         }
 
         // read Intent if NDEF discovered

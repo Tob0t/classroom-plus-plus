@@ -1,15 +1,20 @@
 package ex5.it.mcm.fhooe.classroomplusplus.ui.voting;
 
+import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.design.widget.Snackbar;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.firebase.client.ChildEventListener;
 import com.firebase.client.DataSnapshot;
@@ -40,21 +45,9 @@ public class VoteFragment extends Fragment {
     private Survey mSurvey;
     private TextView mQuestionTxt, mLeftAnswerTxt, mRightAnswerTxt;
 
-    private ImageView mLeftImg, mRightImg;
+    private ImageView mBgImg;
     private String mSurveyId;
 
-    // Mockup ID
-    private String NFC_ID = "123456789";
-
-
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
 
     private OnFragmentInteractionListener mListener;
 
@@ -66,27 +59,16 @@ public class VoteFragment extends Fragment {
      * Use this factory method to create a new instance of
      * this fragment using the provided parameters.
      *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
      * @return A new instance of fragment VoteFragment.
      */
-    // TODO: Rename and change types and number of parameters
-    public static VoteFragment newInstance(String param1, String param2) {
+    public static VoteFragment newInstance() {
         VoteFragment fragment = new VoteFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
         return fragment;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
-        }
     }
 
     @Override
@@ -96,6 +78,9 @@ public class VoteFragment extends Fragment {
         final View rootView = inflater.inflate(R.layout.fragment_vote, container, false);
 
         initializeScreen(rootView);
+
+        final ProgressDialog progress = ProgressDialog.show(getActivity(), "Please Wait ...",
+                "Collecting current survey ..", true);
 
         /**
          * Create Firebase references
@@ -112,6 +97,7 @@ public class VoteFragment extends Fragment {
                     mLeftAnswerTxt.setText(mSurvey.getLeftAnswer());
                     mRightAnswerTxt.setText(mSurvey.getRightAnswer());
                 }
+                progress.dismiss();
             }
 
             @Override
@@ -122,6 +108,7 @@ public class VoteFragment extends Fragment {
                     mLeftAnswerTxt.setText(mSurvey.getLeftAnswer());
                     mRightAnswerTxt.setText(mSurvey.getRightAnswer());
                 }
+                progress.dismiss();
             }
 
             @Override
@@ -136,18 +123,23 @@ public class VoteFragment extends Fragment {
 
             @Override
             public void onCancelled(FirebaseError firebaseError) {
-
             }
         });
 
-        return rootView;
-    }
+        // Hide progress bar after 10 seconds
+        final Handler handler  = new Handler();
+        final Runnable runnable = new Runnable() {
+            @Override
+            public void run() {
+                if (progress.isShowing()) {
+                    progress.dismiss();
+                    Snackbar.make(rootView, "No survey found, please ensure that a survey is created!", Snackbar.LENGTH_LONG).show();
+                }
+            }
+        };
+        handler.postDelayed(runnable, 10000);
 
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
+        return rootView;
     }
 
     private void initializeScreen(View rootView) {
@@ -156,11 +148,11 @@ public class VoteFragment extends Fragment {
         mLeftAnswerTxt =  (TextView) rootView.findViewById(R.id.txtLeftAnswer);
         mRightAnswerTxt =  (TextView) rootView.findViewById(R.id.txtRightAnswer);
 
-        mLeftImg = (ImageView) rootView.findViewById(R.id.imageViewLeft);
-        mRightImg = (ImageView) rootView.findViewById(R.id.imageViewRight);
+        mBgImg = (ImageView) rootView.findViewById(R.id.bgImage);
 
-        mLeftImg.setOnClickListener(onClickListener);
-        mRightImg.setOnClickListener(onClickListener);
+        mBgImg.setOnClickListener(onClickListener);
+        mLeftAnswerTxt.setOnClickListener(onClickListener);
+        mRightAnswerTxt.setOnClickListener(onClickListener);
     }
 
     private View.OnClickListener onClickListener = new View.OnClickListener() {
@@ -168,12 +160,12 @@ public class VoteFragment extends Fragment {
         public void onClick(View v) {
             if(mSurveyId != null) {
                 switch (v.getId()) {
-                    case R.id.imageViewLeft: {
-                        handleAction(NFC_ID, Constants.Answer.LEFT, mSurveyId);
+                    case R.id.txtLeftAnswer: {
+                        handleAction(Constants.NFC_ID, Constants.Answer.LEFT, mSurveyId);
                         break;
                     }
-                    case R.id.imageViewRight: {
-                        handleAction(NFC_ID, Constants.Answer.RIGHT, mSurveyId);
+                    case R.id.txtRightAnswer: {
+                        handleAction(Constants.NFC_ID, Constants.Answer.RIGHT, mSurveyId);
                         break;
                     }
                 }
@@ -184,6 +176,7 @@ public class VoteFragment extends Fragment {
     public void handleAction(String voteId, Constants.Answer answer, String surveyId) {
         DataService.sendAnswer(answer, voteId, surveyId);
 
+        Toast.makeText(getActivity().getApplicationContext(),"Sending mock data answer "+answer+"..",Toast.LENGTH_LONG).show();
         // send SurveyId to Activity
         Intent intent = new Intent(getActivity().getApplicationContext(), VoteResultsActivity.class);
         intent.putExtra(Constants.KEY_SURVEY_ID, surveyId);
@@ -220,3 +213,4 @@ public class VoteFragment extends Fragment {
         mListener = null;
     }
 }
+
