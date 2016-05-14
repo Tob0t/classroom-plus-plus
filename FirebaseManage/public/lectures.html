@@ -46,6 +46,7 @@
         var roomsRef = rootRef.child('rooms');
 
         $(document).on('click', '#createLecture', createLecture);
+        $(document).on('click', '#deleteLecture', deleteLecture);
 
         // format fields
         $('#startTime').datetimepicker({
@@ -102,6 +103,12 @@
             });
          }
 
+         function deleteLecture(){
+          var lecture_key = $(this).data('lecturekey');
+          var room_key = $(this).data('roomkey');
+          lecturesRef.child(room_key).child(lecture_key).remove();
+         }
+
          // Attach an asynchronous callback to read the data at our surveys reference
         lecturesRef.on("value", function(snapshot) {
           var arr = [];
@@ -124,7 +131,7 @@
             $.each(lectures, function(index, lecture) {
                 var startDate = new Date(lecture.startTime).toString('dd.MM.yyyy HH:mm');
                 var endDate = new Date(lecture.endTime).toString('dd.MM.yyyy HH:mm');
-                tr += '<tr><td>'+arr[i].id+'</td><td>'+lecture.lectureName+'</td><td>'+lecture.personName+'</td><td>'+startDate+'</td><td>'+endDate+'</td><td></tr>';
+                tr += '<tr><td>'+arr[i].id+'</td><td>'+lecture.lectureName+'</td><td>'+lecture.personName+'</td><td>'+startDate+'</td><td>'+endDate+'</td><td><button type="button" class="close" data-dismiss="alert" id="deleteLecture" data-lecturekey="'+index+'" data-roomkey="'+arr[i].id+'" aria-hidden="true">&times;</button></td></tr>';
             }); 
           }
           $('#tbody').html(tr);
@@ -153,10 +160,10 @@
         <div id="navbar" class="navbar-collapse collapse">
           <ul class="nav navbar-nav">
             <li><a href="index.html">Home</a></li>
-            <li><a href="#">Surveys</a></li>
+            <li><a href="surveys.html">Surveys</a></li>
             <li><a href="votes.html">Votes</a></li>
             <li><a href="rooms.html">Rooms</a></li>
-            <li class="active"><a href="lectures.html">Lectures</a></li>
+            <li class="active"><a href="#">Lectures</a></li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -165,7 +172,7 @@
     <div class="container theme-showcase" role="main">
       <br>
       <div class="page-header">
-        <h1>Create Survey</h1>
+        <h1>Create Lecture</h1>
       </div>
       <div id="showMessage" style="display: none;"></div>
       <div class="form">
@@ -203,6 +210,7 @@
                 <th>Person</th>
                 <th>Start time</th>
                 <th>End time</th>
+                <th></th>
               </tr>
             </thead>
             <tbody id='tbody'>
