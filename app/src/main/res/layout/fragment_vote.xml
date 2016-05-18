@@ -43,7 +43,7 @@
             android:layout_weight="1"
             android:id="@+id/txtLeftAnswer"
             android:textAlignment="center"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:textColor="@color/accent_material_light" />
 
         <TextView
@@ -53,7 +53,7 @@
             android:layout_weight="1"
             android:id="@+id/txtRightAnswer"
             android:textAlignment="center"
-            android:textSize="25dp"
+            android:textSize="20dp"
             android:textColor="@color/accent_material_light" />
     </LinearLayout>
 

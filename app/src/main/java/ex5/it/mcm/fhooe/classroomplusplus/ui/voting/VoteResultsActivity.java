@@ -175,7 +175,7 @@ public class VoteResultsActivity extends AppCompatActivity {
         PieDataSet dataSet = new PieDataSet(vals, "");
         dataSet.setSliceSpace(3);
         dataSet.setSelectionShift(5);
-        dataSet.setColors(ColorTemplate.COLORFUL_COLORS);
+        dataSet.setColors(ColorTemplate.JOYFUL_COLORS);
 
         mData.addDataSet(dataSet);
         mData.setValueFormatter(new PercentFormatter());
@@ -249,12 +249,17 @@ public class VoteResultsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mVoteRef.removeEventListener(mVoteRefListener);
     }
 
     @Override
     public void onBackPressed() {
         super.onBackPressed();
         this.finish();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mVoteRef.removeEventListener(mVoteRefListener);
     }
 }

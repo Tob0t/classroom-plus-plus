@@ -23,7 +23,6 @@ import ex5.it.mcm.fhooe.classroomplusplus.R;
 import ex5.it.mcm.fhooe.classroomplusplus.model.Lecture;
 import ex5.it.mcm.fhooe.classroomplusplus.ui.voting.VoteResultsActivity;
 import ex5.it.mcm.fhooe.classroomplusplus.utils.Constants;
-import me.grantland.widget.AutofitHelper;
 
 public class AvailabilityResultsActivity extends AppCompatActivity {
     private TextView mRoomNumberTxt, mStateTxt, mCurrentLectureTxt, mPersonNameTxt, mTimeOccupiedTxt, mTimeNextLectureTxt;
@@ -96,8 +95,8 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
         if(roomStatus == Constants.RoomStatus.FREE){
             mStateTxt.setText("Free");
             mStateImage.setImageResource(R.drawable.free);
-            mOccupyButton.setVisibility(View.VISIBLE);
         }
+        mOccupyButton.setVisibility(View.VISIBLE);
         mStateImage.setVisibility(View.VISIBLE);
     }
 
@@ -156,7 +155,7 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        mLectureRef.removeEventListener(mLectureRefListener);
+        //mLectureRef.removeEventListener(mLectureRefListener);
     }
 
     @Override
@@ -165,4 +164,9 @@ public class AvailabilityResultsActivity extends AppCompatActivity {
         this.finish();
     }
 
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        mLectureRef.removeEventListener(mLectureRefListener);
+    }
 }

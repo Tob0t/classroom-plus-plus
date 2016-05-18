@@ -173,7 +173,7 @@
     <Button
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="Occupy room now"
+        android:text="Reserve room"
         android:id="@+id/buttonOccupy"
         android:background="@android:color/holo_green_light"
         android:padding="10dp"
